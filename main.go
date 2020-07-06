@@ -32,7 +32,7 @@ func ClearTodoList(outputPath string) {
 get fileNameList
 */
 func (todo *Todo) getFiles() *Todo {
-	// Execute the ls command in the target directory
+	// Execute the ls command in the target directory.
 	out, err := exec.Command("ls", "-1", todo.Filepath).Output()
 	if err != nil {
 		log.Fatal(err)
