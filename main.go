@@ -101,9 +101,11 @@ func main() {
 	var path string
 	var outputPath string
 	fmt.Println("####TODOリストをファイルに書き出します####")
-	fmt.Println("####書き出し先を入力してください####")
+
 	// user output file path
+	fmt.Println("####書き出し先を入力してください####")
 	fmt.Scan(&outputPath)
+
 	// user input file path
 	fmt.Println("####読み込み先ディレクトリを入力してください####")
 	fmt.Scan(&path)
@@ -111,11 +113,10 @@ func main() {
 	// validation
 	outputPath = ValidationOfUserInputInfo(outputPath)
 	path = ValidationOfUserInputInfo(path)
-
 	v := &Todo{Filepath: path}
 
-	fmt.Println("####", path, "以下のTODOを書き出します####")
 
+	fmt.Println("####", path, "以下のTODOを書き出します####")
 	//clear or create to_do_list file
 	ClearTodoList(outputPath)
 
