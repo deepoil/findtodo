@@ -59,7 +59,7 @@ func BufioScanner(fileName string) (todoList []string) {
 	}
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
-		if strings.Contains(strings.Replace(scanner.Text(), " ", "", -1), "//TODO") {
+		if strings.Contains(strings.ToUpper(strings.Replace(scanner.Text(), " ", "", -1)), "//TODO") {
 			todoList = append(todoList, scanner.Text())
 		}
 	}
