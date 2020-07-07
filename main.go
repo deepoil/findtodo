@@ -32,10 +32,13 @@ func ClearTodoList(outputPath string) {
 get fileNameList
 */
 func (todo *Todo) getFiles() *Todo {
+
 	// Execute the ls command in the target directory.
-	out, err := exec.Command("ls", "-1", todo.Filepath).Output()
+	out, err := exec.Command("find", "-f", todo.Filepath).Output()
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err.Error())
+		fmt.Println(err)
+		log.Fatal(err.Error())
 	}
 
 	// Transfer the acquired file list from byte slice to string slice
@@ -84,21 +87,30 @@ func WriteTodoList(todoListFile, currentFileName string, todoMessages []string) 
 /**
 user input validation
 */
-func ValidationOfUserInputInfo(path string) string {
+func ValidationOfUserInputInfo(path, outputDirFlag string) string {
 	// check dir
 	fInfo, _ := os.Stat(path)
 	if !fInfo.IsDir() {
 		log.Fatal("not directory: ", path)
 	}
 	// check suffix
-	if path[len(path)-1:] != "/" {
-		path += "/"
+	newPath := path
+	// output file
+	if outputDirFlag == "1" {
+		if path[len(path)-1:] != "/" {
+			newPath += "/"
+		}
+		// input file
+	} else {
+		if path[len(path)-1:] == "/" {
+			newPath = path[:len(path)-1]
+		}
 	}
-	return path
+	return newPath
 }
 
 func main() {
-	var path string
+	var inputPath string
 	var outputPath string
 	fmt.Println("####TODOリストをファイルに書き出します####")
 
@@ -108,15 +120,14 @@ func main() {
 
 	// user input file path
 	fmt.Println("####読み込み先ディレクトリを入力してください####")
-	fmt.Scan(&path)
+	fmt.Scan(&inputPath)
 
 	// validation
-	outputPath = ValidationOfUserInputInfo(outputPath)
-	path = ValidationOfUserInputInfo(path)
-	v := &Todo{Filepath: path}
+	outputPath = ValidationOfUserInputInfo(outputPath, "1")
+	inputPath = ValidationOfUserInputInfo(inputPath, "0")
+	v := &Todo{Filepath: inputPath}
 
-
-	fmt.Println("####", path, "以下のTODOを書き出します####")
+	fmt.Println("####", inputPath, "以下のTODOを書き出します####")
 	//clear or create to_do_list file
 	ClearTodoList(outputPath)
 
@@ -124,10 +135,16 @@ func main() {
 	todo := v.getFiles()
 
 	// find to do string and write file
-	for _, v := range todo.Files {
-		currentFileName := path + v
-		todoMessages := BufioScanner(currentFileName)
-		WriteTodoList(outputPath+TodoFileName, currentFileName, todoMessages)
+	for _, file := range todo.Files {
+		fInfo, _ := os.Stat(file)
+
+		// For directories,continue
+		if fInfo == nil || fInfo.IsDir() {
+			continue
+		}
+
+		todoMessages := BufioScanner(file)
+		WriteTodoList(outputPath+TodoFileName, file, todoMessages)
 	}
 
 	fmt.Println(outputPath+TodoFileName, " へ書き出しました")
